@@ -1,11 +1,15 @@
 package analysis
 
 type Analysis struct {
-	MatchedAmount int
+	AliceMatchedAmount int
+	BobMatchedAmount   int
+	// MatchedAmount int
 }
 
 func NewAnalysis() *Analysis {
 	return &Analysis{
-		MatchedAmount: 0,
+		// MatchedAmount: 0,
+		AliceMatchedAmount: 0,
+		BobMatchedAmount:   0,
 	}
 }

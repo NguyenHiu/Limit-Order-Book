@@ -1,6 +1,10 @@
 package lob
 
-import "github.com/NguyenHiu/lob/analysis"
+import (
+	"fmt"
+
+	"github.com/NguyenHiu/lob/analysis"
+)
 
 type LOB struct {
 	BidOrders []*Order
@@ -22,7 +26,7 @@ func (l *LOB) AddOrder(_order *Order) {
 	} else {
 		l.AskOrders = addOrderAccording(_order, l.AskOrders)
 	}
-	l.matching()
+	l.Matching()
 }
 
 func addOrderAccording(_order *Order, _orders []*Order) []*Order {
@@ -39,7 +43,7 @@ func addOrderAccording(_order *Order, _orders []*Order) []*Order {
 	} else {
 		for i := 0; i < l; i++ {
 			if (_order.IsBid() && _order.Price > _orders[i].Price) ||
-				(!_order.IsBid() && _order.Price > _orders[i].Price) {
+				(!_order.IsBid() && _order.Price < _orders[i].Price) {
 				_orders = append(_orders, nil)
 				copy(_orders[i+1:], _orders[i:])
 				_orders[i] = _order
@@ -52,15 +56,14 @@ func addOrderAccording(_order *Order, _orders []*Order) []*Order {
 	return _orders
 }
 
-func (l *LOB) matching() {
+func (l *LOB) Matching() {
 	for canMatch(l.BidOrders, l.AskOrders) {
-		// TODO: Matching
 		minAmount := l.BidOrders[0].Amount
 		if minAmount > l.AskOrders[0].Amount {
 			minAmount = l.AskOrders[0].Amount
 		}
 
-		l.Analysis.MatchedAmount += minAmount
+		fmt.Printf("matched, amount: %v\n", minAmount)
 
 		l.BidOrders[0].Amount -= minAmount
 		l.AskOrders[0].Amount -= minAmount
