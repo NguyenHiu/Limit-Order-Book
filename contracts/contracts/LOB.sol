@@ -10,13 +10,30 @@ contract LOB {
     }
 
     event MyMatchEvent(bytes16, uint256);
+    
+    /**
+     * MATCHING TIME
+     */
+    event MatchTimestamp(uint256);
+    mapping(bytes16 => uint256) OrderTimestamp;
+    uint256 noOrders;
+    //
 
     Order[] bidOrders;
     Order[] askOrders;
 
-    constructor() {}                                                                            
+    constructor() {
+        noOrders = 0;
+    }
 
     function addOrder(Order memory newOrder) public {
+        /**
+        * MATCHING TIME
+        */
+        noOrders += 1;
+        OrderTimestamp[newOrder.orderID] = noOrders;
+        // 
+
         if (newOrder.orderID == bytes16(0)) {
             emit MyMatchEvent(newOrder.orderID, newOrder.amount);
         }
@@ -37,7 +54,20 @@ contract LOB {
             }
 
             emit MyMatchEvent(bidOrders[0].orderID, minAmount);
-            emit MyMatchEvent(askOrders[0].orderID, minAmount);
+            // emit MyMatchEvent(askOrders[0].orderID, minAmount);
+            
+            /**
+            * MATCHING TIME
+            */
+            emit MatchTimestamp(
+                // bidOrders[0].orderID,
+                noOrders - OrderTimestamp[bidOrders[0].orderID]
+            );
+            emit MatchTimestamp(
+                // askOrders[0].orderID,
+                noOrders - OrderTimestamp[askOrders[0].orderID]
+            );
+            //
 
             bidOrders[0].amount -= minAmount;
             askOrders[0].amount -= minAmount;

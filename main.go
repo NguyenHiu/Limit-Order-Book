@@ -21,6 +21,8 @@ func main() {
 	deployerPrvkeyHex := "abf82ff96b463e9d82b83cb9bb450fe87e6166d4db6d7021d0c71d7e960d5abe"
 	_, inst := contracts.DeployContracts(deployerPrvkeyHex)
 
+	go contracts.ListenContract(inst)
+
 	traderPrvkeyHex := "dcb7118c9946a39cd40b661e0d368e4afcc3cc48d21aa750d8164ca2e44961c4"
 	prvkey, _ := crypto.HexToECDSA(traderPrvkeyHex)
 	_addr := crypto.PubkeyToAddress(prvkey.PublicKey)
@@ -96,6 +98,5 @@ func SetupTxSender(auth *bind.TransactOpts, _client *ethclient.Client, _addr com
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.GasPrice = gasPrice
 	auth.Value = big.NewInt(0)
-	auth.GasLimit = uint64(9999999)
-
+	auth.GasLimit = uint64(6_000_000)
 }
