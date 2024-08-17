@@ -13,10 +13,10 @@ import (
 func DeployContracts(privateKeyHex string) (common.Address, *lOB.LOB) {
 	prvkey, _ := crypto.HexToECDSA(privateKeyHex)
 
-	chainID := big.NewInt(1338)
+	chainID := big.NewInt(1337)
 	auth, _ := bind.NewKeyedTransactorWithChainID(prvkey, chainID)
 
-	_client, _ := ethclient.Dial("ws://127.0.0.1:8546")
+	_client, _ := ethclient.Dial("ws://127.0.0.1:8545")
 
 	contractAddr, _, contractInst, _ := lOB.DeployLOB(auth, _client)
 

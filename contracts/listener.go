@@ -9,42 +9,36 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
-func ListenContract(inst *lOB.LOB) {
+type Listener struct {
+	NoFulfillOrders int
+}
+
+func NewListner() *Listener {
+	return &Listener{
+		NoFulfillOrders: 0,
+	}
+}
+
+func (l *Listener) StartListen(inst *lOB.LOB) {
 	opt := &bind.WatchOpts{Context: context.Background()}
-	go watchMatchedEvent(inst, opt)
-	go watchMatchTimestampEvent(inst, opt)
+	go l.watchMatchAnOrder(inst, opt)
 }
 
-func watchMatchedEvent(inst *lOB.LOB, opt *bind.WatchOpts) {
-	logs := make(chan *lOB.LOBMyMatchEvent)
-	sub, err := inst.WatchMyMatchEvent(opt, logs)
+func (l *Listener) watchMatchAnOrder(inst *lOB.LOB, opt *bind.WatchOpts) {
+	logs := make(chan *lOB.LOBMatchAnOrder)
+	sub, err := inst.WatchMatchAnOrder(opt, logs)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer sub.Unsubscribe()
-	for {
-		select {
-		case err := <-sub.Err():
-			log.Fatal(err)
-		case vLogs := <-logs:
-			fmt.Println("Matched, amount: ", vLogs.Arg1)
-		}
-	}
-}
 
-func watchMatchTimestampEvent(inst *lOB.LOB, opt *bind.WatchOpts) {
-	logs := make(chan *lOB.LOBMatchTimestamp)
-	sub, err := inst.WatchMatchTimestamp(opt, logs)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer sub.Unsubscribe()
 	for {
 		select {
 		case err := <-sub.Err():
 			log.Fatal(err)
-		case vLogs := <-logs:
-			fmt.Println("Time: ", vLogs.Arg0)
+		case <-logs:
+			fmt.Println("Matched an order")
+			l.NoFulfillOrders += 1
 		}
 	}
 }

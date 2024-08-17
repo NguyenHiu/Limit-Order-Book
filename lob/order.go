@@ -4,7 +4,7 @@ type Order struct {
 	Price  int
 	Amount int
 	Side   bool
-	Owner  string
+	// Owner  string
 }
 
 func NewOrder(_price, _amount int, _side bool) *Order {

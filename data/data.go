@@ -2,13 +2,16 @@ package data
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
+
+	"github.com/NguyenHiu/lob/lob"
 )
 
 type OrderData struct {
-	Price  int  `json:"Price"`
-	Amount int  `json:"Amount"`
-	Side   bool `json:"Side"`
+	Price  int
+	Amount int
+	Side   bool
 }
 
 func LoadOrders(path string) ([]*OrderData, error) {
@@ -23,4 +26,19 @@ func LoadOrders(path string) ([]*OrderData, error) {
 	}
 
 	return orders, nil
+}
+
+func SaveData(data []lob.Order, filename string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("cannot open file: %v", filename)
+	}
+	defer file.Close()
+
+	enc := json.NewEncoder(file)
+	if err := enc.Encode(&data); err != nil {
+		return fmt.Errorf("cannot write data into file: %v", filename)
+	}
+
+	return nil
 }

@@ -2,21 +2,20 @@ package lob
 
 import (
 	"fmt"
-
-	"github.com/NguyenHiu/lob/analysis"
 )
 
 type LOB struct {
 	BidOrders []*Order
 	AskOrders []*Order
-	Analysis  *analysis.Analysis
+
+	NoFulfill int
 }
 
-func NewLOB(_a *analysis.Analysis) *LOB {
+func NewLOB() *LOB {
 	return &LOB{
 		BidOrders: make([]*Order, 0),
 		AskOrders: make([]*Order, 0),
-		Analysis:  _a,
+		NoFulfill: 0,
 	}
 }
 
@@ -63,15 +62,15 @@ func (l *LOB) Matching() {
 			minAmount = l.AskOrders[0].Amount
 		}
 
-		fmt.Printf("matched, amount: %v\n", minAmount)
-
 		l.BidOrders[0].Amount -= minAmount
 		l.AskOrders[0].Amount -= minAmount
 
 		if l.BidOrders[0].Amount == 0 {
+			l.NoFulfill += 1
 			l.BidOrders = l.BidOrders[1:]
 		}
 		if l.AskOrders[0].Amount == 0 {
+			l.NoFulfill += 1
 			l.AskOrders = l.AskOrders[1:]
 		}
 	}
@@ -83,4 +82,15 @@ func canMatch(_bidOrders []*Order, _askOrders []*Order) bool {
 	}
 
 	return _bidOrders[0].Price >= _askOrders[0].Price
+}
+
+func (l *LOB) GetOrderBook() string {
+	s := ""
+	for _, o := range l.BidOrders {
+		s += fmt.Sprintf("%v,%v,", o.Price, o.Amount)
+	}
+	for _, o := range l.AskOrders {
+		s += fmt.Sprintf("%v,%v,", o.Price, o.Amount)
+	}
+	return s
 }
